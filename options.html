@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>ChatGPT Model Selector Options</title>
+    <style>
+      body {
+        font-family: system-ui, sans-serif;
+        margin: 24px;
+        color: #1f2933;
+      }
+      h1 {
+        margin-bottom: 16px;
+      }
+      form {
+        display: grid;
+        gap: 16px;
+        max-width: 720px;
+      }
+      label {
+        font-weight: 600;
+        display: block;
+        margin-bottom: 6px;
+      }
+      input,
+      textarea {
+        width: 100%;
+        padding: 10px 12px;
+        border: 1px solid #cbd2d9;
+        border-radius: 8px;
+        font-size: 14px;
+      }
+      textarea {
+        min-height: 96px;
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+          "Liberation Mono", "Courier New", monospace;
+      }
+      .hint {
+        font-size: 12px;
+        color: #616e7c;
+      }
+      .actions {
+        display: flex;
+        gap: 12px;
+      }
+      button {
+        padding: 10px 16px;
+        border: none;
+        border-radius: 999px;
+        background: #2563eb;
+        color: white;
+        font-weight: 600;
+        cursor: pointer;
+      }
+      button[type="reset"] {
+        background: #e2e8f0;
+        color: #1f2933;
+      }
+      #status {
+        font-size: 13px;
+        color: #15803d;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>ChatGPT Model Selector</h1>
+    <form id="options-form">
+      <div>
+        <label for="modelName">選択するモデル名</label>
+        <input id="modelName" name="modelName" type="text" />
+        <p class="hint">モデルメニューに表示されるラベルを入力します。</p>
+      </div>
+      <div>
+        <label for="retryIntervalMs">再試行間隔 (ms)</label>
+        <input id="retryIntervalMs" name="retryIntervalMs" type="number" min="100" />
+      </div>
+      <div>
+        <label for="newChatStateSentinel">新規チャット判定セレクタ</label>
+        <textarea id="newChatStateSentinel" name="newChatStateSentinel"></textarea>
+        <p class="hint">1行につき1セレクタ。</p>
+      </div>
+      <div>
+        <label for="conversationTurn">会話ターンセレクタ</label>
+        <textarea id="conversationTurn" name="conversationTurn"></textarea>
+      </div>
+      <div>
+        <label for="leftTopButton">左上の新規チャットボタン</label>
+        <textarea id="leftTopButton" name="leftTopButton"></textarea>
+      </div>
+      <div>
+        <label for="modelDropdown">モデル選択ドロップダウン</label>
+        <textarea id="modelDropdown" name="modelDropdown"></textarea>
+      </div>
+      <div>
+        <label for="legacyModel">Legacy モデルボタン</label>
+        <textarea id="legacyModel" name="legacyModel"></textarea>
+      </div>
+      <div>
+        <label for="modelTarget">目的のモデルボタン</label>
+        <textarea id="modelTarget" name="modelTarget"></textarea>
+      </div>
+      <div class="actions">
+        <button type="submit">保存</button>
+        <button type="reset">リセット</button>
+        <span id="status" role="status" aria-live="polite"></span>
+      </div>
+    </form>
+    <script src="options.js"></script>
+  </body>
+</html>

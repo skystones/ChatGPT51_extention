@@ -1,0 +1,14 @@
+{
+  "manifest_version": 3,
+  "name": "ChatGPT Model Selector",
+  "version": "0.1.0",
+  "description": "Starts model selection logic on chatgpt.com pages.",
+  "permissions": ["storage"],
+  "content_scripts": [
+    {
+      "matches": ["https://chatgpt.com/*"],
+      "js": ["content.js"],
+      "run_at": "document_idle"
+    }
+  ]
+}

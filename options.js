@@ -1,7 +1,7 @@
 const SETTINGS_KEY = "chatgptModelSelectorSettings";
 
 const DEFAULT_SETTINGS = {
-  modelName: "ChatGPT 5.1 thinking",
+  modelName: "GPT-5.1 Thinking",
   retryIntervalMs: 800,
   selectors: {
     newChatStateSentinel: [
@@ -16,16 +16,21 @@ const DEFAULT_SETTINGS = {
       "button[data-testid='new-chat-button']",
     ],
     modelDropdown: [
+      "button[data-testid='model-switcher-dropdown-button']",
+      "button[aria-label='モデルセレクター']",
       "button[aria-label='Model picker']",
       "button[data-testid='model-picker']",
       "button[aria-haspopup='listbox']",
+      "button[aria-haspopup='menu']",
     ],
     legacyModel: [
+      "button[aria-label*='レガシー']",
       "button[data-testid='model-legacy']",
       "button[aria-label*='Legacy']",
     ],
     modelTarget: [
       "button[data-testid='model-chatgpt-5-1-thinking']",
+      "button[aria-label*='GPT-5.1 Thinking']",
       "button[aria-label*='ChatGPT 5.1 thinking']",
     ],
   },

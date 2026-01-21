@@ -8,6 +8,9 @@ const DEFAULT_SETTINGS = {
   retryIntervalMs: 800,
   selectors: {
     newChatStateSentinel: [
+      "[data-composer-surface='true']",
+      "textarea[name='prompt-textarea']",
+      ".wcDTda_prosemirror-parent textarea",
       "textarea[aria-label='Message']",
       "textarea[data-testid='prompt-textarea']",
       "textarea[placeholder*='Message']",
@@ -103,9 +106,10 @@ const findByText = (texts) => {
     document.querySelectorAll("button, [role='button'], a")
   );
   return (
-    candidates.find((element) =>
-      texts.some((text) => element.textContent?.trim() === text)
-    ) || null
+    candidates.find((element) => {
+      const content = element.textContent?.trim() ?? "";
+      return texts.some((text) => content.includes(text));
+    }) || null
   );
 };
 

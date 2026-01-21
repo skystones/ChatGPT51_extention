@@ -5,6 +5,9 @@ const DEFAULT_SETTINGS = {
   retryIntervalMs: 800,
   selectors: {
     newChatStateSentinel: [
+      "[data-composer-surface='true']",
+      "textarea[name='prompt-textarea']",
+      ".wcDTda_prosemirror-parent textarea",
       "textarea[aria-label='Message']",
       "textarea[data-testid='prompt-textarea']",
       "textarea[placeholder*='Message']",

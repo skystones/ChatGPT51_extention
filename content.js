@@ -27,6 +27,8 @@ const DEFAULT_SETTINGS = {
       "button[data-testid='model-picker']",
       "button[aria-haspopup='listbox']",
       "button[aria-haspopup='menu']",
+      "button[aria-label*='ChatGPT 5.2']",
+      "button[aria-label*='ChatGPT']",
     ],
     legacyModel: [
       "button[aria-label*='レガシー']",
@@ -43,7 +45,14 @@ const DEFAULT_SETTINGS = {
 
 const TEXT_FALLBACKS = {
   leftTopButton: ["新しいチャット", "New chat"],
-  modelDropdown: ["モデルセレクター", "モデル", "Model"],
+  modelDropdown: [
+    "ChatGPT 5.2",
+    "ChatGPT 5.1",
+    "ChatGPT",
+    "モデルセレクター",
+    "モデル",
+    "Model",
+  ],
   legacyModel: ["レガシー モデル", "レガシー", "Legacy"],
 };
 
@@ -175,27 +184,18 @@ const hoverElement = (element) => {
   });
 };
 
-const hoverLegacyIfPresent = (selectors, texts) => {
+const openLegacyGroupIfPresent = (selectors, texts) => {
   const element = findBySelectors(selectors) || findByText(texts);
 
   if (!element) {
     console.debug(
-      "ChatGPT Model Selector: legacy model group not present, skipping hover."
+      "ChatGPT Model Selector: legacy model group not present, skipping."
     );
     return;
   }
 
   hoverElement(element);
-};
-
-const isNewChatState = () => {
-  const hasComposer = Boolean(
-    findBySelectors(currentSettings.selectors.newChatStateSentinel)
-  );
-  const hasConversation = Boolean(
-    findBySelectors(currentSettings.selectors.conversationTurn)
-  );
-  return hasComposer && !hasConversation;
+  element.click();
 };
 
 const runSelectionFlow = async () => {
@@ -213,6 +213,8 @@ const runSelectionFlow = async () => {
     });
     if (!dropdownClicked) continue;
 
+    await sleep(300);
+
     let modelClicked = await clickStep({
       label: modelName,
       selectors: selectors.modelTarget,
@@ -221,7 +223,8 @@ const runSelectionFlow = async () => {
     });
     if (modelClicked) return true;
 
-    hoverLegacyIfPresent(selectors.legacyModel, TEXT_FALLBACKS.legacyModel);
+    openLegacyGroupIfPresent(selectors.legacyModel, TEXT_FALLBACKS.legacyModel);
+    await sleep(300);
 
     modelClicked = await clickStep({
       label: modelName,

@@ -24,6 +24,8 @@ const DEFAULT_SETTINGS = {
       "button[data-testid='model-picker']",
       "button[aria-haspopup='listbox']",
       "button[aria-haspopup='menu']",
+      "button[aria-label*='ChatGPT 5.2']",
+      "button[aria-label*='ChatGPT']",
     ],
     legacyModel: [
       "button[aria-label*='レガシー']",

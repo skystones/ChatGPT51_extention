@@ -102,9 +102,13 @@ const findBySelectors = (selectors) => {
 
 const findByText = (texts) => {
   if (!texts?.length) return null;
+
   const candidates = Array.from(
-    document.querySelectorAll("button, [role='button'], a")
+    document.querySelectorAll(
+      "button, [role='button'], [role='tab'], [role='menuitem'], a"
+    )
   );
+
   return (
     candidates.find((element) => {
       const content = element.textContent?.trim() ?? "";
@@ -145,6 +149,52 @@ const clickStep = async ({
   return true;
 };
 
+const hoverElement = (element) => {
+  const rect = element.getBoundingClientRect();
+  const clientX = rect.left + rect.width / 2;
+  const clientY = rect.top + rect.height / 2;
+
+  [
+    "pointerover",
+    "pointerenter",
+    "mouseover",
+    "mouseenter",
+    "mousemove",
+  ].forEach((type) => {
+    element.dispatchEvent(
+      new MouseEvent(type, {
+        bubbles: true,
+        cancelable: true,
+        view: window,
+        clientX,
+        clientY,
+      })
+    );
+  });
+};
+
+const hoverStep = async ({
+  label,
+  selectors,
+  texts,
+  retryIntervalMs,
+}) => {
+  const element = await waitForElement({
+    selectors,
+    texts,
+    timeoutMs: STEP_TIMEOUT_MS,
+    retryIntervalMs,
+  });
+
+  if (!element) {
+    console.warn(`ChatGPT Model Selector: ${label} not found for hover.`);
+    return false;
+  }
+
+  hoverElement(element);
+  return true;
+};
+
 const isNewChatState = () => {
   const hasComposer = Boolean(
     findBySelectors(currentSettings.selectors.newChatStateSentinel)
@@ -178,13 +228,17 @@ const runSelectionFlow = async () => {
     });
     if (!dropdownClicked) continue;
 
-    const legacyClicked = await clickStep({
+    const legacyHovered = await hoverStep({
       label: "legacy model",
       selectors: selectors.legacyModel,
       texts: TEXT_FALLBACKS.legacyModel,
       retryIntervalMs,
     });
-    if (!legacyClicked) continue;
+    if (!legacyHovered) {
+      console.debug(
+        "ChatGPT Model Selector: legacy model group not found, trying to click model directly."
+      );
+    }
 
     const modelClicked = await clickStep({
       label: modelName,

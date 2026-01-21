@@ -10,7 +10,6 @@ const DEFAULT_SETTINGS = {
     newChatStateSentinel: [
       "[data-composer-surface='true']",
       "textarea[name='prompt-textarea']",
-      ".wcDTda_prosemirror-parent textarea",
       "textarea[aria-label='Message']",
       "textarea[data-testid='prompt-textarea']",
       "textarea[placeholder*='Message']",
@@ -49,6 +48,11 @@ const TEXT_FALLBACKS = {
 };
 
 let currentSettings = DEFAULT_SETTINGS;
+
+const isRootChatGPTPage = () =>
+  location.hostname === "chatgpt.com" &&
+  location.pathname === "/" &&
+  !location.search;
 
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
@@ -173,26 +177,17 @@ const hoverElement = (element) => {
   });
 };
 
-const hoverStep = async ({
-  label,
-  selectors,
-  texts,
-  retryIntervalMs,
-}) => {
-  const element = await waitForElement({
-    selectors,
-    texts,
-    timeoutMs: STEP_TIMEOUT_MS,
-    retryIntervalMs,
-  });
+const hoverLegacyIfPresent = (selectors, texts) => {
+  const element = findBySelectors(selectors) || findByText(texts);
 
   if (!element) {
-    console.warn(`ChatGPT Model Selector: ${label} not found for hover.`);
-    return false;
+    console.debug(
+      "ChatGPT Model Selector: legacy model group not present, skipping hover."
+    );
+    return;
   }
 
   hoverElement(element);
-  return true;
 };
 
 const isNewChatState = () => {
@@ -228,17 +223,7 @@ const runSelectionFlow = async () => {
     });
     if (!dropdownClicked) continue;
 
-    const legacyHovered = await hoverStep({
-      label: "legacy model",
-      selectors: selectors.legacyModel,
-      texts: TEXT_FALLBACKS.legacyModel,
-      retryIntervalMs,
-    });
-    if (!legacyHovered) {
-      console.debug(
-        "ChatGPT Model Selector: legacy model group not found, trying to click model directly."
-      );
-    }
+    hoverLegacyIfPresent(selectors.legacyModel, TEXT_FALLBACKS.legacyModel);
 
     const modelClicked = await clickStep({
       label: modelName,
@@ -256,6 +241,9 @@ const runSelectionFlow = async () => {
 let flowInProgress = false;
 
 const startModelSelection = async () => {
+  if (!isRootChatGPTPage()) {
+    return;
+  }
   if (flowInProgress) return;
   if (!isNewChatState()) return;
 

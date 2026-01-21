@@ -50,9 +50,7 @@ const TEXT_FALLBACKS = {
 let currentSettings = DEFAULT_SETTINGS;
 
 const isRootChatGPTPage = () =>
-  location.hostname === "chatgpt.com" &&
-  location.pathname === "/" &&
-  !location.search;
+  location.hostname === "chatgpt.com" && location.pathname === "/";
 
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
@@ -207,14 +205,6 @@ const runSelectionFlow = async () => {
     console.debug(
       `ChatGPT Model Selector: attempt ${attempt}/${FLOW_MAX_ATTEMPTS}`
     );
-    const leftButtonClicked = await clickStep({
-      label: "left top button",
-      selectors: selectors.leftTopButton,
-      texts: TEXT_FALLBACKS.leftTopButton,
-      retryIntervalMs,
-    });
-    if (!leftButtonClicked) continue;
-
     const dropdownClicked = await clickStep({
       label: "model dropdown",
       selectors: selectors.modelDropdown,
@@ -223,9 +213,17 @@ const runSelectionFlow = async () => {
     });
     if (!dropdownClicked) continue;
 
+    let modelClicked = await clickStep({
+      label: modelName,
+      selectors: selectors.modelTarget,
+      texts: [modelName],
+      retryIntervalMs,
+    });
+    if (modelClicked) return true;
+
     hoverLegacyIfPresent(selectors.legacyModel, TEXT_FALLBACKS.legacyModel);
 
-    const modelClicked = await clickStep({
+    modelClicked = await clickStep({
       label: modelName,
       selectors: selectors.modelTarget,
       texts: [modelName],
@@ -239,18 +237,20 @@ const runSelectionFlow = async () => {
 };
 
 let flowInProgress = false;
+let selectionCompleted = false;
 
 const startModelSelection = async () => {
-  if (!isRootChatGPTPage()) {
-    return;
-  }
-  if (flowInProgress) return;
-  if (!isNewChatState()) return;
+  if (!isRootChatGPTPage()) return;
+  if (selectionCompleted || flowInProgress) return;
 
   flowInProgress = true;
   console.debug("ChatGPT Model Selector: initializing model selection flow.");
-  await runSelectionFlow();
+  const success = await runSelectionFlow();
   flowInProgress = false;
+
+  if (success) {
+    selectionCompleted = true;
+  }
 };
 
 const observeNewChat = () => {
